@@ -20,13 +20,10 @@ async function runBot() {
     });
 
     const page = await browser.newPage();
-    
-    // බ්‍රවුසරය සැබෑ බ්‍රවුසරයක් ලෙස පෙන්වීමට User Agent එකක් සැකසීම
     await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
 
-    // 1. Cookies ලබා ගැනීම (Koyeb Environment Variables වලින්)
+    // 1. Cookies ලබා ගැනීම
     const cookiesEnv = process.env.MY_COOKIES;
-    
     if (cookiesEnv) {
         try {
             const cookies = JSON.parse(cookiesEnv);
@@ -37,17 +34,22 @@ async function runBot() {
         }
     }
 
-    // 2. ඔයා දුන්නු URL එකට පිවිසීම
-    const targetUrl = 'https://exc.10khits.com/surf?id=804020&token=f5a9550d6876efcfb9046b2235d9abe4';
+    // 2. URL එක ලබා ගැනීම (Environment Variable එකෙන්)
+    const targetUrl = process.env.TARGET_URL;
+
+    if (!targetUrl) {
+        console.error("දෝෂයකි: TARGET_URL එක ලබා දී නැත!");
+        return;
+    }
     
     try {
         await page.goto(targetUrl, { waitUntil: 'networkidle2', timeout: 60000 });
-        console.log(`Bot එක වැඩ පටන් ගත්තා: ${targetUrl}`);
+        console.log(`බොට් වැඩ පටන් ගත්තා: ${targetUrl}`);
     } catch (err) {
         console.error("මුලින්ම පිටුවට යාමේදී දෝෂයක්: ", err.message);
     }
 
-    // 3. හරියටම විනාඩි 15 කට වරක් Refresh කිරීම
+    // 3. විනාඩි 15 කට වරක් Refresh කිරීම
     setInterval(async () => {
         try {
             console.log("විනාඩි 15ක් සම්පූර්ණයි. පිටුව Refresh වෙනවා... " + new Date().toLocaleTimeString());
@@ -55,7 +57,7 @@ async function runBot() {
         } catch (err) {
             console.error("Refresh කිරීමේදී දෝෂයක්: ", err.message);
         }
-    }, 15 * 60 * 1000); // 15 minutes in milliseconds
+    }, 15 * 60 * 1000); 
 }
 
 runBot().catch(console.error);
